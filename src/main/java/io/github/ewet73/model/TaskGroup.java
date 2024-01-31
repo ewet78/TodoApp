@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "task_groups")
@@ -18,13 +18,29 @@ public class TaskGroup {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", fetch = FetchType.EAGER)
-    private Set<Task> tasks;
+    private List<Task> tasks;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id")
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
     private Project project;
 
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_step_id", referencedColumnName = "id")
+    private ProjectStep projectStepId;
+
     public TaskGroup() {
+    }
+
+    public ProjectStep getProjectStepId() {
+        return projectStepId;
+    }
+
+    public void setProjectStepId(ProjectStep projectStepId) {
+        this.projectStepId = projectStepId;
     }
 
     public int getId() {
@@ -52,11 +68,11 @@ public class TaskGroup {
         this.done = done;
     }
 
-    public Set<Task> getTasks() {
+    public List<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(final Set<Task> tasks) {
+    public void setTasks(final List<Task> tasks) {
         this.tasks = tasks;
     }
 
@@ -64,7 +80,7 @@ public class TaskGroup {
         return project;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setProject(Project projectId) {
+        this.project = projectId;
     }
 }

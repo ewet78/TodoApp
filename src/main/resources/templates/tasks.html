@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App: groups</title>
+    <link rel="stylesheet" href="https://unpkg.com/awsm.css/dist/awsm.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        .P\(0\) {
+            padding: 0;
+            list-style-type: square;
+        }
+
+        .tasksWithoutGroup {
+            list-style-type: square;
+            padding-left: 0px;
+            margin-left: 45px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <ul id="groupsList" class="P(0)">
+        <li th:each="group : ${groups}" th:id="'group-' + ${group.id}">
+            <input type="hidden" th:value="${group.id}" />
+            <span th:text="${group.description}"></span>
+            <ul class="tasksList">
+            </ul>
+        </li>
+        <li>Zadania nie przyporządkowane do żadnej z grup:
+            <ul>
+                <li class="tasksWithoutGroup" th:each="task : ${tasks}" th:if="${task.group == null}">
+                    <input type="checkbox" th:checked="${task.done} ? 'checked' : '' " th:id="${task.id}" />
+                    <span th:text="${task.description}"></span>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <fieldset>
+        <legend>Nowe zadanie</legend>
+        <form id="taskForm" action="#" method="post" th:action="@{/tasks/{groupId}(groupId=*{groupId})}" th:object="${task}" >
+            <label for="selectedGroup">Wybierz grupę</label>
+            <select id="selectedGroup" name="groupId">
+                <option th:each="group, groupStat : ${groups}" th:value="${group.id}" th:text="${group.description}" th:selected="${groupStat.index == 0}"></option>
+            </select>
+            <label>Opis zadania
+                <input type="text" name="description" id="description" />
+            </label>
+            <label>Deadline
+                <input type="datetime-local" name="deadline" id="deadline" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" />
+            </label>
+            <button type="submit">Dodaj!</button>
+        </form>
+    </fieldset>
+</main>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        function fetchTasks(groupId) {
+            fetch("/groups/" + groupId)
+                .then(response => response.json())
+                .then(tasks => {
+                    const tasksList = document.createElement("ul");
+                    tasks.forEach(task => {
+                        const taskItem = document.createElement("li");
+                        taskItem.innerHTML = '<input type="checkbox" ' + (task.done !== false ? 'checked' : '') + ' id="' + task.id + '"/>' +
+                            '<span>' + task.description + '</span>' +
+                            '<small>' + task.deadline + '</small>';
+                        tasksList.appendChild(taskItem);
+                    });
+                    document.getElementById("group-" + groupId).querySelector(".tasksList").appendChild(tasksList);
+                })
+                .catch(error => console.error("Error fetching tasks:", error));
+        }
+
+        const groups = document.querySelectorAll("#groupsList > li");
+        groups.forEach(group => {
+            const hiddenInput = group.querySelector("input[type='hidden']");
+            const groupId = hiddenInput?.value;
+            if (groupId) {
+                fetchTasks(groupId);
+            }
+        });
+
+        document.getElementById('groupsList').addEventListener('click', async (e) => {
+            if(e.target.type === 'checkbox') {
+                console.log('Checkbox clicked:', e.target.id);
+                const taskId = e.target.id;
+                const response = await fetch(`/tasks/${taskId}`, { method: 'PATCH' });
+                if (response.ok) {
+                    e.target.setAttribute('checked', !e.target.checked);
+                }
+            }
+        })
+    });
+
+    $(document).ready(function () {
+        const selectedGroup = document.getElementById("selectedGroup");
+        const taskForm = document.getElementById("taskForm");
+
+        selectedGroup.addEventListener("change", function () {
+            const selectedGroupId = selectedGroup.value;
+            console.log(selectedGroupId);
+            taskForm.action = "/tasks/" + selectedGroupId;
+        });
+        selectedGroup.dispatchEvent(new Event("change"));
+    });
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ import io.github.ewet73.model.TaskGroup;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -17,7 +17,7 @@ class GroupReadModelTest {
         //given
         var source = new TaskGroup();
         source.setDescription("foo");
-        source.setTasks(Set.of(new Task("bar", null)));
+        source.setTasks(List.of(new Task("bar", null)));
 
         //when
         var result = new GroupReadModel(source);

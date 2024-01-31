@@ -17,10 +17,6 @@ public class Project {
     private String description;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "project")
-    private Set<TaskGroup> groups;
-
-    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
     private Set<ProjectStep> steps;
 
@@ -41,14 +37,6 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    Set<TaskGroup> getGroups() {
-        return groups;
-    }
-
-    void setGroups(Set<TaskGroup> groups) {
-        this.groups = groups;
     }
 
     public Set<ProjectStep> getSteps() {

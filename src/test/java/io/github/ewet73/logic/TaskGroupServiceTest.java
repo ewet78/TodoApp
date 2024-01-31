@@ -22,7 +22,7 @@ class TaskGroupServiceTest {
         //given
         var mockTaskRepository = taskRepositoryReturning(true);
         //system under test
-        var toTest = new TaskGroupService(null, mockTaskRepository);
+        var toTest = new TaskGroupService(null, mockTaskRepository, null);
 
         //when
         var exception = catchThrowable(() -> toTest.toggleGroup(1));
