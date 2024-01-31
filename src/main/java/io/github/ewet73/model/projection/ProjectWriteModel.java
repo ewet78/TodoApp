@@ -17,7 +17,6 @@ public class ProjectWriteModel {
     private List<ProjectStep> steps = new ArrayList<>();
 
     public ProjectWriteModel() {
-        steps.add(new ProjectStep());
     }
 
     public String getDescription() {
@@ -36,11 +35,22 @@ public class ProjectWriteModel {
         this.steps = steps;
     }
 
+    public void addStep(ProjectStep step) {
+        steps.add(step);
+    }
+
     public Project toProject() {
         var result = new Project();
         result.setDescription(description);
         steps.forEach(step -> step.setProject(result));
         result.setSteps(new HashSet<>(steps));
         return result;
+    }
+
+    public List<ProjectStep> removeStepFromProject(int index) {
+        if (!steps.isEmpty()) {
+            steps.remove(steps.size() - 1);
+        }
+        return steps;
     }
 }

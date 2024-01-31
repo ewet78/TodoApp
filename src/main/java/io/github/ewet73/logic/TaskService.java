@@ -2,7 +2,10 @@ package io.github.ewet73.logic;
 
 import io.github.ewet73.model.Task;
 import io.github.ewet73.model.TaskGroup;
+import io.github.ewet73.model.TaskGroupRepository;
 import io.github.ewet73.model.TaskRepository;
+import io.github.ewet73.model.projection.GroupTaskReadModel;
+import io.github.ewet73.model.projection.GroupTaskWriteModel;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +23,11 @@ public class TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
     private final TaskRepository repository;
 
-    TaskService(final TaskRepository repository){
+    private TaskGroupRepository groupRepository;
+
+    TaskService(final TaskRepository repository, final TaskGroupRepository groupRepository){
         this.repository = repository;
+        this.groupRepository = groupRepository;
     }
 
     @Transactional
@@ -49,6 +55,12 @@ public class TaskService {
                 .filter(task -> task.getDeadline().isBefore(today.plusDays(2)))
                 .collect(Collectors.toList());
 
+    }
+
+    public GroupTaskReadModel createTask(GroupTaskWriteModel source, int groupId) {
+        TaskGroup taskGroupId = groupRepository.findByCustomId(groupId);
+        Task result = repository.save(source.toTask(taskGroupId));
+        return new GroupTaskReadModel(result);
     }
 
 

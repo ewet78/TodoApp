@@ -1,6 +1,7 @@
 package io.github.ewet73.model.projection;
 
 import io.github.ewet73.model.Project;
+import io.github.ewet73.model.ProjectStep;
 import io.github.ewet73.model.TaskGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,8 +16,32 @@ public class GroupWriteModel {
     @Valid
     private List<GroupTaskWriteModel> tasks = new ArrayList<>();
 
+    @Valid
+    private Project projectId;
+
+    @Valid
+    private ProjectStep projectStepId;
+
+    public GroupWriteModel(ProjectStep projectStepId, Project projectId) {
+        this.projectStepId = projectStepId;
+        this.projectId = projectId;
+        tasks.add(new GroupTaskWriteModel());
+    }
+
     public GroupWriteModel() {
         tasks.add(new GroupTaskWriteModel());
+    }
+
+    public Project getProject() {
+        return projectId;
+    }
+
+    public void setProject(Project project) {
+        this.projectId = project;
+    }
+
+    public ProjectStep getProjectStepId() {
+        return projectStepId;
     }
 
     public String getDescription() {
@@ -35,15 +60,23 @@ public class GroupWriteModel {
         this.tasks = tasks;
     }
 
-    public TaskGroup toGroup(final Project project) {
+    public TaskGroup toGroup(final Project projectId, final ProjectStep projectStepId) {
         var result = new TaskGroup();
         result.setDescription(description);
         result.setTasks(
                 tasks.stream()
                         .map(source -> source.toTask(result))
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toList())
         );
-        result.setProject(project);
+        result.setProject(projectId);
+        result.setProjectStepId(projectStepId);
         return result;
+    }
+
+    public List<GroupTaskWriteModel> removeTaskFromGroup(int index) {
+        if (!tasks.isEmpty()) {
+            tasks.remove(tasks.size() - 1);
+        }
+        return tasks;
     }
 }

@@ -30,7 +30,7 @@ class ProjectServiceTest {
         var toTest = new ProjectService(null, mockGroupRepository, null, mockConfig);
 
         // when
-        var exception = catchThrowable(() -> toTest.createGroup(LocalDateTime.now(), 0));
+        var exception = catchThrowable(() -> toTest.createGroup(LocalDateTime.now(), 0, 0));
 
         // then
         assertThat(exception)
@@ -43,14 +43,14 @@ class ProjectServiceTest {
     void createGroup_configurationOk_And_noProjects_throwsIllegalArgumentException() {
         //given
         var mockRepository = mock(ProjectRepository.class);
-        when(mockRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(mockRepository.findByProjectId(anyInt())).thenReturn(null);
         //and
         TaskConfigurationProperties mockConfig = configurationReturning(true);
         //system under test
         var toTest = new ProjectService(mockRepository, null, null, mockConfig);
 
         //when
-        var exception = catchThrowable(() -> toTest.createGroup(LocalDateTime.now(), 0));
+        var exception = catchThrowable(() -> toTest.createGroup(LocalDateTime.now(), 0, 0));
 
         //then
         assertThat(exception)
@@ -63,7 +63,7 @@ class ProjectServiceTest {
     void createGroup_noMultipleGroupsConfig_And_noUndoneGroupExists_noProjects_throwsIllegalArgumentException() {
         //given
         var mockRepository = mock(ProjectRepository.class);
-        when(mockRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(mockRepository.findByProjectId(anyInt())).thenReturn(null);
         //and
         TaskGroupRepository mockGroupRepository = groupRepositoryReturning(false);
         //and
@@ -72,7 +72,7 @@ class ProjectServiceTest {
         var toTest = new ProjectService(mockRepository, mockGroupRepository, null, mockConfig);
 
         //when
-        var exception = catchThrowable(() -> toTest.createGroup(LocalDateTime.now(), 0));
+        var exception = catchThrowable(() -> toTest.createGroup(LocalDateTime.now(), 0, 0));
 
         //then
         assertThat(exception)
@@ -88,8 +88,8 @@ class ProjectServiceTest {
         //and
         var project = projectWith("bar", Set.of(-1, -2));
         var mockRepository = mock(ProjectRepository.class);
-        when(mockRepository.findById(anyInt()))
-                .thenReturn(Optional.of(project));
+        when(mockRepository.findByProjectId(anyInt()))
+                .thenReturn(null);
         //and
         InMemoryGroupRepository inMemoryGroupRepo = inMemoryGroupRepository();
         var serviceWithInMemoryRepo = dummyGroupService(inMemoryGroupRepo);
@@ -100,7 +100,7 @@ class ProjectServiceTest {
         //system under test
         var toTest = new ProjectService(mockRepository, inMemoryGroupRepo, serviceWithInMemoryRepo, mockConfig);
         //when
-        GroupReadModel result = toTest.createGroup(today, 1);
+        GroupReadModel result = toTest.createGroup(today, 1, 1);
 
         //then
         assertThat(result.getDescription()).isEqualTo("bar");
@@ -113,7 +113,7 @@ class ProjectServiceTest {
     }
 
     private static TaskGroupService dummyGroupService(final InMemoryGroupRepository inMemoryGroupRepo) {
-        return new TaskGroupService(inMemoryGroupRepo, null);
+        return new TaskGroupService(inMemoryGroupRepo, null, null);
     }
 
     private Project projectWith(String projectDescription, Set<Integer> daysToDeadline) {
@@ -148,12 +148,18 @@ class ProjectServiceTest {
                 return new ArrayList<>(map.values());
             }
 
-            @Override
-            public Optional<TaskGroup> findById(final Integer id) {
-                return Optional.ofNullable(map.get(id));
+
+        @Override
+            public TaskGroup findByCustomId(final Integer id) {
+                return map.get(id);
             }
 
             @Override
+            public Optional<TaskGroup> findByProjectId(Integer id) {
+                return Optional.ofNullable(map.get(id));
+            }
+
+        @Override
             public TaskGroup save(final TaskGroup entity) {
                 if(entity.getId() == 0) {
                     try {

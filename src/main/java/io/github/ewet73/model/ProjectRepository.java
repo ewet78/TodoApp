@@ -1,12 +1,13 @@
 package io.github.ewet73.model;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProjectRepository {
     List<Project> findAll();
-
-    Optional<Project> findById(Integer id);
+    List<ProjectStep> findAllProjectSteps();
+    List<ProjectStep> findProjectStepsByProjectId(int projectId);
+    ProjectStep findByStepId(Integer id);
+    Project findByProjectId(Integer id);
 
     Project save(Project entity);
 }

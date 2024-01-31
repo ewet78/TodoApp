@@ -6,7 +6,9 @@ import java.util.Optional;
 public interface TaskGroupRepository {
     List<TaskGroup> findAll();
 
-    Optional<TaskGroup> findById(Integer id);
+    TaskGroup findByCustomId(Integer id);
+
+    Optional<TaskGroup> findByProjectId(Integer id);
 
     TaskGroup save(TaskGroup entity);
 

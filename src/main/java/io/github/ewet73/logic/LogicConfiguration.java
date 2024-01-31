@@ -22,8 +22,9 @@ class LogicConfiguration {
     @Bean
     TaskGroupService taskGroupService(
             final TaskGroupRepository taskGroupRepository,
-            final TaskRepository taskRepository
+            final TaskRepository taskRepository,
+            final ProjectRepository projectRepository
     ) {
-        return new TaskGroupService(taskGroupRepository, taskRepository);
+        return new TaskGroupService(taskGroupRepository, taskRepository, projectRepository);
     }
 }

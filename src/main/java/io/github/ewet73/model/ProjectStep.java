@@ -1,7 +1,10 @@
 package io.github.ewet73.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "project_steps")
@@ -13,9 +16,22 @@ public class ProjectStep {
     private String description;
 
     private int daysToDeadline;
+
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "projectStepId")
+    private Set<TaskGroup> groups;
+
+    public Set<TaskGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<TaskGroup> groups) {
+        this.groups = groups;
+    }
 
     public int getId() {
         return id;
@@ -41,7 +57,7 @@ public class ProjectStep {
         this.daysToDeadline = daysToDeadline;
     }
 
-    Project getProject() {
+    public Project getProject() {
         return project;
     }
 

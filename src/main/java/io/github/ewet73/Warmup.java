@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
+import java.util.List;
 
 @Component
 class Warmup implements ApplicationListener<ContextRefreshedEvent> {
@@ -30,7 +30,7 @@ class Warmup implements ApplicationListener<ContextRefreshedEvent> {
             logger.info("No required group found! Adding one");
             var group = new TaskGroup();
             group.setDescription(description);
-            group.setTasks(Set.of(
+            group.setTasks(List.of(
                     new Task("ContextClosedEvent", null, group),
                     new Task("ContextRefreshedEvent", null, group),
                     new Task("ContextStoppedEvent", null, group),
