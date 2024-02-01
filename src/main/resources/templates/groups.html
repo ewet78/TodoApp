@@ -42,7 +42,7 @@
 <body>
 <main>
     <!--/*@thymesVar id="message" type="java.lang.String"*/-->
-    <h1 th:if="${message != null}" th:text="${message}"></h1>
+    <h2 th:if="${message != null}" th:text="${message}"></h2>
     <!--/*@thymesVar id="groups" type="java.util.List<io.github.ewet73.model.projection.GroupReadModel>"*/-->
     <dl th:each="group : ${groups}" class="Bd P(10px)">
         <dt>
@@ -60,7 +60,7 @@
             <hr class="M(0)">
         </dt>
         <dd>
-            <a th:href="@{/tasks.html(group=${group.id})}">
+            <a th:href="@{/tasks/{groupId}(groupId=${group.id})}">
                 <ul class="P(0)">
                     <li th:each="task : ${group.tasks}">
                         <span th:unless="${task.done}" th:text="${task.description}"></span>

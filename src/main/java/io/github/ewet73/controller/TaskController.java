@@ -16,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +45,22 @@ class TaskController {
     @PostMapping(value = "/{groupId}", produces = MediaType.TEXT_HTML_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     String createTask(
             @ModelAttribute("task") @Valid GroupTaskWriteModel current,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes,
             @PathVariable int groupId) {
-        service.createTask(current, groupId);
-        return "redirect:/tasks";
+        if (bindingResult.hasErrors()) {
+            logger.info("bindingResult has errors");
+            model.addAttribute("errors", bindingResult);
+            List<Task> tasksByGroupId =  repository.findAllByGroup_Id(groupId);
+            model.addAttribute("tasks", tasksByGroupId);
+            model.addAttribute("groups", groupService.readByGroupId(groupId));
+            return "tasks";
+        } else {
+            service.createTask(current, groupId);
+            redirectAttributes.addFlashAttribute("message", "Dodano zadanie!");
+            return "redirect:/tasks";
+        }
     }
 
     @GetMapping(params = {"!sort", "!page", "!size"})
@@ -65,10 +80,12 @@ class TaskController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Task> readTask(@PathVariable int id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    String readTask(@PathVariable int id, Model model) {
+        List<Task> tasksByGroupId =  repository.findAllByGroup_Id(id);
+        model.addAttribute("tasks", tasksByGroupId);
+        model.addAttribute("task", new GroupTaskWriteModel());
+        model.addAttribute("groups", groupService.readByGroupId(id));
+        return "tasks";
     }
 
     @GetMapping("/search/done")

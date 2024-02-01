@@ -33,7 +33,7 @@
 <body>
 <main>
     <!--/*@thymesVar id="message" type="java.lang.String"*/-->
-    <h1 th:if="${message != null}" th:text="${message}"></h1>
+    <h2 th:if="${message != null}" th:text="${message}"></h2>
     <!--/*@thymesVar id="projects" type="java.util.List<io.github.ewet73.model.Project>"*/-->
     <dl th:each="project : ${projects}" class="Bd P(10px)">
         <dt th:text="${project.description}">...</dt>

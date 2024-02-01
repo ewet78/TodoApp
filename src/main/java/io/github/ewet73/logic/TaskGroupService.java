@@ -4,6 +4,7 @@ import io.github.ewet73.model.*;
 import io.github.ewet73.model.projection.GroupReadModel;
 import io.github.ewet73.model.projection.GroupWriteModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,13 @@ public class TaskGroupService {
         return repository.findAll().stream()
                 .map(GroupReadModel::new)
                 .collect(Collectors.toList());
+    }
+
+    public List<TaskGroup> readByGroupId(int id) {
+        TaskGroup groupById = repository.findByCustomId(id);
+        List<TaskGroup> group = new ArrayList<>();
+        group.add(groupById);
+        return group;
     }
 
     public void toggleGroup(int groupId) {
